@@ -11,12 +11,6 @@ module.exports = class extends Generator {
     );
 
     const prompts = [
-      // {
-      //   type: 'confirm',
-      //   name: 'someAnswer',
-      //   message: 'Would you like to enable this option?',
-      //   default: true
-      // }
       {
         type: 'input',
         name: 'botname',
@@ -29,18 +23,32 @@ module.exports = class extends Generator {
     return this.prompt(prompts).then(props => {
       // To access props later use this.props.someAnswer;
       this.props = props;
-      this.log(props.name);
+      this.log(props.botname);
     });
   }
 
   writing() {
-    this.fs.copy(
-      this.templatePath('dummyfile.txt'),
-      this.destinationPath('dummyfile.txt')
-    );
+    // Copy the configuration files
+
+    this.config = () => {
+      this.fs.copyTpl(
+        this.templatePath('_package.json'),
+        this.destinationPath('package.json'),
+        { name: this.props.botname }
+      );
+    };
+
+    // Copy the application files
+
+    this.app = () => {
+      this.fs.copy(this.templatePath('_app.js'), this.destinationPath('app.js'));
+    };
+
+    this.config();
+    this.app();
   }
 
   install() {
-    this.installDependencies();
+    // This.installDependencies();
   }
 };

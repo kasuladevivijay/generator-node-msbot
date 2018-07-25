@@ -1,0 +1,13 @@
+{
+    "name": "<%= name %>",
+    "version": "1.0.0",
+    "description": "A basic Web Chat bot", 
+    "scripts": {
+        "start": "node app.js"
+    },
+    "dependencies": {
+        "botbuilder": "^3.13.1",
+        "restify": "^5.0.0"
+    },
+    "license": "ISC"
+}
