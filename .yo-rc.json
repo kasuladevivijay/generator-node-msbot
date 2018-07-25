@@ -1,0 +1,9 @@
+{
+  "generator-node": {
+    "promptValues": {
+      "authorName": "Vijay Kumar",
+      "authorEmail": "kasuladevivijay@gmail.com",
+      "authorUrl": "kasuladevivijay.github.io"
+    }
+  }
+}
