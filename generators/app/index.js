@@ -17,6 +17,30 @@ module.exports = class extends Generator {
         message: 'Your bot name',
         // Defaults to the project's folder name if the input is skipped
         default: this.appname
+      },
+      {
+        type: 'confirm',
+        name: 'createAzureBot',
+        message: 'Do you want to create Azure related Bot',
+        default: false
+      },
+      {
+        type: 'rawlist',
+        name: 'services',
+        message: 'Select services to work',
+        choices: ['QnA Maker', 'LUIS AI', 'AppInsights'],
+        when: props => {
+          return props.createAzureBot;
+        }
+      },
+      {
+        type: 'confirm',
+        name: 'useCosmosDB',
+        message: 'Do you want to connect with azure Cosmos DB?',
+        default: false,
+        when: props => {
+          return props.createAzureBot;
+        }
       }
     ];
 
