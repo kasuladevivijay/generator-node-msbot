@@ -41,7 +41,12 @@ module.exports = class extends Generator {
     // Copy the application files
 
     this.app = () => {
-      this.fs.copy(this.templatePath('_app.js'), this.destinationPath('app.js'));
+      this.fs.copy(this.templatePath('src/_app.js'), this.destinationPath('src/app.js'));
+      this.fs.copy(this.templatePath('_.gitignore'), this.destinationPath('.gitignore'));
+      this.fs.copy(
+        this.templatePath('tests/_app.test.js'),
+        this.destinationPath('tests/app.test.js')
+      );
     };
 
     this.config();
@@ -49,6 +54,8 @@ module.exports = class extends Generator {
   }
 
   install() {
-    // This.installDependencies();
+    this.installDependencies({
+      bower: false
+    });
   }
 };

@@ -3,11 +3,15 @@
     "version": "1.0.0",
     "description": "A basic Web Chat bot", 
     "scripts": {
-        "start": "node app.js"
+        "start": "node ./src/app",
+        "test": "jest"
     },
     "dependencies": {
         "botbuilder": "^3.13.1",
         "restify": "^5.0.0"
+    },
+    "devDependencies": {
+        "jest": "^22.0.6"
     },
     "license": "ISC"
 }
