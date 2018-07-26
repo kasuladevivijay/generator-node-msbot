@@ -19,27 +19,33 @@ module.exports = class extends Generator {
         default: this.appname
       },
       {
-        type: 'confirm',
-        name: 'createAzureBot',
-        message: 'Do you want to create Azure related Bot',
-        default: false
+        type: 'list',
+        name: 'language',
+        message: 'Which language you prefer ?',
+        choices: ['JavaScript', 'TypeScript']
       },
       {
-        type: 'rawlist',
+        type: 'list',
+        name: 'type',
+        message: 'Select type of Bot',
+        choices: ['Simple', 'Advanced']
+      },
+      {
+        type: 'checkbox',
         name: 'services',
-        message: 'Select services to work',
-        choices: ['QnA Maker', 'LUIS AI', 'AppInsights'],
+        message: 'Please select the Services you want to use',
+        choices: ['QnA Maker', 'LUIS AI', 'SpeechToText', 'AppInsights'],
         when: props => {
-          return props.createAzureBot;
+          return props.type === 'Advanced';
         }
       },
       {
         type: 'confirm',
         name: 'useCosmosDB',
-        message: 'Do you want to connect with azure Cosmos DB?',
+        message: 'Do you like to use CosmosDB storage ?',
         default: false,
         when: props => {
-          return props.createAzureBot;
+          return props.type === 'Advanced';
         }
       }
     ];
@@ -52,6 +58,8 @@ module.exports = class extends Generator {
   }
 
   writing() {
+    const extension = this.props.language === 'JavaScript' ? 'js' : 'ts';
+
     // Copy the configuration files
 
     this.config = () => {
@@ -65,11 +73,18 @@ module.exports = class extends Generator {
     // Copy the application files
 
     this.app = () => {
-      this.fs.copy(this.templatePath('src/_app.js'), this.destinationPath('src/app.js'));
+      this.fs.copy(
+        this.templatePath(`src/_app.${extension}`),
+        this.destinationPath(`src/app.${extension}`)
+      );
+      this.fs.copy(
+        this.templatePath(`src/_bot.${extension}`),
+        this.destinationPath(`src/bot.${extension}`)
+      );
       this.fs.copy(this.templatePath('_.gitignore'), this.destinationPath('.gitignore'));
       this.fs.copy(
-        this.templatePath('tests/_app.test.js'),
-        this.destinationPath('tests/app.test.js')
+        this.templatePath(`tests/_app.test.${extension}`),
+        this.destinationPath(`tests/app.test.${extension}`)
       );
     };
 
