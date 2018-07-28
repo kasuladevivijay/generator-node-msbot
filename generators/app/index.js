@@ -26,7 +26,7 @@ module.exports = class extends Generator {
       },
       {
         type: 'list',
-        name: 'type',
+        name: 'botType',
         message: 'Select type of Bot',
         choices: ['Simple', 'Advanced']
       },
@@ -34,9 +34,9 @@ module.exports = class extends Generator {
         type: 'checkbox',
         name: 'services',
         message: 'Please select the Services you want to use',
-        choices: ['QnA Maker', 'LUIS AI', 'SpeechToText', 'AppInsights'],
+        choices: ['QnA Maker', 'LUIS AI'],
         when: props => {
-          return props.type === 'Advanced';
+          return props.botType === 'Advanced';
         }
       },
       {
@@ -45,7 +45,16 @@ module.exports = class extends Generator {
         message: 'Do you like to use CosmosDB storage ?',
         default: false,
         when: props => {
-          return props.type === 'Advanced';
+          return props.botType === 'Advanced';
+        }
+      },
+      {
+        type: 'confirm',
+        name: 'useAppInsights',
+        message: 'Do you like to use Azure AppInsights ?',
+        default: false,
+        when: props => {
+          return props.botType === 'Advanced';
         }
       }
     ];
@@ -58,8 +67,39 @@ module.exports = class extends Generator {
   }
 
   writing() {
-    const extension = this.props.language === 'JavaScript' ? 'js' : 'ts';
+    const fe = this.props.language === 'JavaScript' ? 'js' : 'ts';
+    // CosmosDB config
+    const useCosmosDB = this.props.useCosmosDB
+      ? `const azure = require('botbuilder-azure');`
+      : null;
 
+    const cosmosDBConfig = `bot.set('storage', new azure.AzureBotStorage({
+      gzipData: false
+    }, new azure.DocumenDbClient({
+      host: process.env.host,
+      masterKey: process.env.masterKey,
+      database: process.env.DatabaseName,
+      collection: process.env.collection
+    })));`;
+
+    const useCosmosDBConfig = this.props.useCosmosDB
+      ? cosmosDBConfig
+      : `bot.set('storage', new builder.MemoryBotStorage());`;
+
+    // App Insights Config
+    const useAppInsights = this.props.useAppInsights
+      ? `const insights = require('applicationinsights');`
+      : null;
+    const insightsConfig = `insights.setup(process.env.appId).start();
+    const insightsClient = insights.defaultClient;
+    insightsClient.trackDependency({
+        dependencyTypeName: "<dependencyName>",
+        name: "<commandName>",
+        duration: duration,
+        success: true
+    });`;
+
+    const useInsightsConfig = this.props.useAppInsights ? insightsConfig : null;
     // Copy the configuration files
 
     this.config = () => {
@@ -74,17 +114,23 @@ module.exports = class extends Generator {
 
     this.app = () => {
       this.fs.copy(
-        this.templatePath(`src/_app.${extension}`),
-        this.destinationPath(`src/app.${extension}`)
+        this.templatePath(`src/_app.${fe}`),
+        this.destinationPath(`src/app.${fe}`)
       );
-      this.fs.copy(
-        this.templatePath(`src/_bot.${extension}`),
-        this.destinationPath(`src/bot.${extension}`)
+      this.fs.copyTpl(
+        this.templatePath(`src/_bot.${fe}`),
+        this.destinationPath(`src/bot.${fe}`),
+        {
+          useCosmosDB: useCosmosDB,
+          useCosmosDBConfig: useCosmosDBConfig,
+          useAppInsights: useAppInsights,
+          useInsightsConfig: useInsightsConfig
+        }
       );
       this.fs.copy(this.templatePath('_.gitignore'), this.destinationPath('.gitignore'));
       this.fs.copy(
-        this.templatePath(`tests/_app.test.${extension}`),
-        this.destinationPath(`tests/app.test.${extension}`)
+        this.templatePath(`tests/_app.test.${fe}`),
+        this.destinationPath(`tests/app.test.${fe}`)
       );
     };
 

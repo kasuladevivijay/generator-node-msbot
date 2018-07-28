@@ -1,4 +1,6 @@
 const builder = require('botbuilder');
+<%- useCosmosDB %>
+<%- useAppInsights %>
 
 // For Console connector
 // const connector = new builder.ConsoleConnector().listen();
@@ -13,5 +15,11 @@ const connector = new builder.ChatConnector({
 const bot = new builder.UniversalBot(connector, function (session) {
     session.send("You said: %s", session.message.text);
 });
+
+// Bot Storage Configuration
+<%- useCosmosDBConfig %>
+
+// Azure App Insights Configuration
+<%- useInsightsConfig %>
 
 module.exports = bot;
