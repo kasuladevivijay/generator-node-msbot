@@ -31,10 +31,19 @@ module.exports = class extends Generator {
         choices: ['Simple', 'Advanced']
       },
       {
-        type: 'checkbox',
-        name: 'services',
-        message: 'Please select the Services you want to use',
-        choices: ['QnA Maker', 'LUIS AI'],
+        type: 'confirm',
+        name: 'useLUIS',
+        message: 'Do you like to use LUIS service ?',
+        default: false,
+        when: props => {
+          return props.botType === 'Advanced';
+        }
+      },
+      {
+        type: 'confirm',
+        name: 'useQnA',
+        message: 'Do you like to use QnA service ?',
+        default: false,
         when: props => {
           return props.botType === 'Advanced';
         }
@@ -76,10 +85,10 @@ module.exports = class extends Generator {
     const cosmosDBConfig = `bot.set('storage', new azure.AzureBotStorage({
       gzipData: false
     }, new azure.DocumenDbClient({
-      host: process.env.host,
-      masterKey: process.env.masterKey,
+      host: process.env.DatabaseHost,
+      masterKey: process.env.DatabaseMasterKey,
       database: process.env.DatabaseName,
-      collection: process.env.collection
+      collection: '<collection>'
     })));`;
 
     const useCosmosDBConfig = this.props.useCosmosDB
@@ -100,6 +109,23 @@ module.exports = class extends Generator {
     });`;
 
     const useInsightsConfig = this.props.useAppInsights ? insightsConfig : null;
+
+    // QnA service config
+    const useQna = this.props.useQnA
+      ? `const cognitiveServices = require('builder-cognitiveservices');`
+      : null;
+    const qnaConfig = `const qnaRecognizer = new cognitiveServices.QnAMakerRecognizer({
+      knowledgeBaseId: process.env.QnAKnowledgebaseId,
+      authKey: process.env.QnAAuthKey,
+      endpointHostName: process.env.QnAEndpointHostName,
+      top: 5
+    });`;
+    const useQnaConfig = this.props.useQnA ? qnaConfig : null;
+    // LUIS service config
+    const luisConfig = `const luisURL = 'https://'+process.env.LuisAPIHostName+'/luis/v2.0/apps/'+process.env.LuisAppId+'?subscription-key='+process.env.LuisAPIKey;
+    const luisRecognizer = builder.LuisRecognizer(luisURL);`;
+    const useLUISConfig = this.props.useLUIS ? luisConfig : null;
+
     // Copy the configuration files
 
     this.config = () => {
@@ -108,6 +134,7 @@ module.exports = class extends Generator {
         this.destinationPath('package.json'),
         { name: this.props.botname }
       );
+      this.fs.copy(this.templatePath('_.env'), this.destinationPath('.env'));
     };
 
     // Copy the application files
@@ -124,7 +151,10 @@ module.exports = class extends Generator {
           useCosmosDB: useCosmosDB,
           useCosmosDBConfig: useCosmosDBConfig,
           useAppInsights: useAppInsights,
-          useInsightsConfig: useInsightsConfig
+          useInsightsConfig: useInsightsConfig,
+          useQna: useQna,
+          useQnaConfig: useQnaConfig,
+          useLUISConfig: useLUISConfig
         }
       );
       this.fs.copy(this.templatePath('_.gitignore'), this.destinationPath('.gitignore'));
@@ -138,6 +168,7 @@ module.exports = class extends Generator {
     this.app();
   }
 
+  // Comment while testing
   install() {
     this.installDependencies({
       bower: false

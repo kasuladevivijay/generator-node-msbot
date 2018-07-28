@@ -1,6 +1,6 @@
 {
   "name": "generator-node-msbot",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "A generator to create a chatbot in NodeJS based on Microsoft BotFramework.",
   "homepage": "",
   "author": {

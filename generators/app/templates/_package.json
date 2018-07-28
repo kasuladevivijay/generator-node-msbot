@@ -1,14 +1,20 @@
 {
     "name": "<%= name %>",
     "version": "1.0.0",
-    "description": "A basic Web Chat bot", 
+    "description": "A basic Web Chat bot",
     "scripts": {
         "start": "node ./src/app",
         "test": "jest"
     },
     "dependencies": {
         "botbuilder": "^3.13.1",
-        "restify": "^5.0.0"
+        "restify": "^5.0.0",
+        "botbuilder-azure": "^3.1.0",
+        "builder-cognitiveservices": "^1.2.0",
+        "applicationinsights": "^1.0.2",
+        "dotenv": "^6.0.0",
+        "adaptivecards": "^1.0.0",
+        "lodash": "^4.17.5"
     },
     "devDependencies": {
         "jest": "^22.0.6"

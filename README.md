@@ -15,6 +15,9 @@ Then generate your new project:
 ```bash
 yo node-msbot
 ```
+## Important Note
+
+* TypeScript feature will be available soon
 
 ## Getting To Know Yeoman
 
